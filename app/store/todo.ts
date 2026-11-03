@@ -1,31 +1,40 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
-export interface TodoItem {
+export interface ITodoItem {
   index: number
   isCompleted: boolean
   content: string
 }
 
-export interface Todo {
+export interface ITodo {
   id: string
   title: string
-  list: TodoItem[]
+  list: ITodoItem[]
 }
 
-export const useTodoStore = defineStore('todos', () => {
+interface ITodoStore {
+  todos: Ref<ITodo[]>
+  total: Ref<number>
+  addTodo: (todo: ITodo) => void
+  deleteTodo: (id: string) => void
+}
 
-  const todos = ref<Todo[]>([])
+export const useTodoStore = defineStore('todos', (): ITodoStore => {
+
+  const todos = ref<ITodo[]>([])
   const total = computed(() => todos.value.length)
 
-  function addTodo(todo: Todo): void {
+  function addTodo(todo: ITodo): void {
     todos.value.push(todo)
   }
 
 
   function deleteTodo(id: string) {
-    const index = todos.value.filter(todo => todo.id !== id)
-    todos.value = todos.value.filter(todo => todo.id !== id)
+    const index = todos.value.findIndex(todo => todo.id === id)
+    if (index !== -1) {
+      todos.value.splice(index, 1)
+    }
   }
 
   return {

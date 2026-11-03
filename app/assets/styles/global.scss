@@ -1,5 +1,7 @@
 :root {
-    --padding-main: 80px;
+    --space-main-x: 120px;
+    --space-main-y: 60px;
+    --header-height: 60px;
     --background: #808080;
 }
 
@@ -14,4 +16,13 @@ body {
     grid-template-rows: var(--header-height) 1fr;
     justify-content: space-between;
     background: var(--background);
+}
+
+a {
+    color: initial;
+    text-decoration: none;
+}
+
+h3 {
+    margin: 0.5em;
 }
