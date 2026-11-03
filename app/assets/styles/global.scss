@@ -1,0 +1,17 @@
+:root {
+    --padding-main: 80px;
+    --background: #808080;
+}
+
+body {
+    margin: 0;
+}
+
+#__nuxt {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: var(--header-height) 1fr;
+    justify-content: space-between;
+    background: var(--background);
+}
