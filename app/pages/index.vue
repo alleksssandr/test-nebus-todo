@@ -1,7 +1,5 @@
 <script lang="ts" setup>
-import { useTodoStore } from '@/store/todo';
-import Add from '~/assets/icons/add.vue';
-import Delete from '~/assets/icons/delete.vue';
+import { useTodoStore } from '~/store/todo';
 
 const router = useRouter()
 

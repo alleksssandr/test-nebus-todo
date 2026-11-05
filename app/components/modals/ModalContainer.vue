@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import Close from '~/assets/icons/close.vue';
 
-interface Props {
+interface IModalContainerProps {
     title?: string;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<IModalContainerProps>(), {
     title: '',
 });
 

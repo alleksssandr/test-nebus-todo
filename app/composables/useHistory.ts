@@ -1,7 +1,7 @@
-import type { ITodo, ITodoItem } from '~/store/todo'
+import type { ITodo, ITodoItem } from '~/types/todo'
 
 
-export function useTodoHistory(_todo: ITodo) {
+export function useTodoHistory(_todo: ITodo, callbackChanged: (todo: ITodo) => void) {
 
     const todo = ref<ITodo>(_todo)
 
@@ -14,46 +14,53 @@ export function useTodoHistory(_todo: ITodo) {
         todo.value = {
             id: _todo.id,
             name: _todo.name,
-            list: _todo.list.map(i => (({ index: i.index, content: i.content, isCompleted: i.isCompleted })))
+            list: _todo.list.map(i => (({ index: i.index, text: i.text, checked: i.checked }))),
+            date: _todo.date
         }
     }
 
     function changeName(name: string) {
         const command = new ChangeNameCommand(todo.value, name, todo.value.name)
         history.execute(command)
-        checkStack()
+        changedTodo()
     }
 
     function addNewItem(item: ITodoItem) {
         const command = new AddTodoItemCommand(todo.value, item)
         history.execute(command)
-        checkStack()
+        changedTodo()
     }
 
     function changeItemFlag(index: number) {
         const command = new ChangeTodoItemFlagCommand(todo.value, index)
         history.execute(command)
-        checkStack()
+        changedTodo()
     }
     function changeItemText(index: number, oldText: string, newText: string) {
         const command = new ChangeTodoItemTextCommand(todo.value, index, oldText, newText)
         history.execute(command)
-        checkStack()
+        changedTodo()
     }
 
     function removeItem(index: number, item: ITodoItem) {
         const command = new RemoveTodoItemCommand(todo.value, index, item)
         history.execute(command)
-        checkStack()
+        changedTodo()
     }
 
     function undo() {
         history.undo()
-        checkStack()
+        changedTodo()
     }
 
     function redo() {
         history.redo()
+        changedTodo()
+    }
+
+    function changedTodo() {
+        todo.value.date = new Date().getTime()
+        callbackChanged?.(todo.value)
         checkStack()
     }
 

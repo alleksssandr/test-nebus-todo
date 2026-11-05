@@ -1,28 +1,39 @@
 <script lang="ts" setup>
 import Delete from '~/assets/icons/delete.vue';
 import Edit from '~/assets/icons/edit.vue';
-import type { ITodo, ITodoItem } from '~/store/todo';
+import type { ITodo, ITodoItem } from '~/types/todo';
 
 import { useTodoStore } from '~/store/todo'
 
+type TItemError = { [key: number]: boolean }
+
+const todoStore = useTodoStore()
 const {
   addTodo,
   updateTodo,
   getTodo,
   deleteTodo
-} = useTodoStore()
+} =  todoStore;
+const { todos } = storeToRefs(todoStore)
 
 const route = useRoute()
 const router = useRouter()
 
 const id = computed<string>(() => {
   const { id } = route.params
-  if ( typeof id === 'string') {
+  if (typeof id === 'string') {
     return id
   } else {
     return ''
   }
 })
+
+const savedTodo = computed<ITodo | null>((): ITodo | null => {
+  if (!id.value) return null
+
+  return todos.value.find(i => i.id === id.value) || null
+})
+
 
 const { loadDraft, debouncedSave, removeDraft } = useDraft(id.value)
 
@@ -39,16 +50,21 @@ const {
   canUndo,
   canRedo,
   clearHistory
-} = useTodoHistory({ id: '', name: '', list: [] })
+} = useTodoHistory({ id: '', name: '', list: [], date: new Date().getTime()}, debouncedSave)
+
+useUndoRedoKeypress(undo, redo)
 
 const isShowModalDelete = ref<boolean>(false)
 const isShowModalCancelChanges = ref<boolean>(false)
-const loadedDraftData = ref<IDraftData | null>(null)
+const loadedDraftData = ref<ITodo | null>(null)
+
+const errorName = ref<boolean>(false)
+const errorsItems = ref<TItemError>({})
 
 const debouncedNameExecute = () => {
   changeName(name.value)
 }
-const debouncedName = debounce(debouncedNameExecute, 1000);
+const debouncedName = debounce(debouncedNameExecute, 500);
 
 
 const name = ref<string>('')
@@ -57,16 +73,11 @@ const text = ref<string>('')
 const items = ref<ITodoItem[]>([])
 
 const handleAdd = () => {
-  if (!text.value.length) {
-    return
-  }
-
   addNewItem({
     index: items.value.length,
-    content: text.value,
-    isCompleted: false
+    text: text.value,
+    checked: false
   })
-  text.value = ''
 }
 
 const handleChangeItemText = (index: number, oldText: string, newText: string) => {
@@ -74,24 +85,42 @@ const handleChangeItemText = (index: number, oldText: string, newText: string) =
 }
 
 
+const isValid = computed<boolean>(() => {
+  const hasNameError = errorName.value
+  const hasItemsError = Object.values(errorsItems.value).some(error => error === true)
+
+  return !hasNameError && !hasItemsError
+})
+
+const validation = (): void => {
+  errorName.value = !name.value.trim().length
+
+  items.value.forEach(i => {
+    errorsItems.value[i.index] = !i.text.trim().length
+  });
+}
+
 const handleSave = () => {
+  if (!isValid.value) {
+    return
+  }
+
   if (todo.value.id) {
     updateTodo(todo.value)
-    clearHistory()
   } else {
-    const uuid = crypto.randomUUID()
-  
+     const uuid = crypto.randomUUID()
+
     addTodo({
       id: uuid,
       name: name.value,
-      list: items.value
+      list: items.value,
+      date: new Date().getTime()
     })
-
-    clearHistory()
-    removeDraft()
-
     router.push({ params: { id: uuid } })
   }
+
+  clearHistory()
+  removeDraft()
 }
 
 const handleDelete = () => {
@@ -130,7 +159,7 @@ const onCancelChanges = () => {
 
 const handleLoadDraft = () => {
   if (loadedDraftData.value) {
-    setTodo(loadedDraftData.value?.todo)
+    setTodo(loadedDraftData.value)
     loadedDraftData.value = null
   }
 }
@@ -139,8 +168,6 @@ const handleClearDraft = () => {
   removeDraft()
   loadedDraftData.value = null
 }
-
-
 
 onMounted(() => {
   if (id.value) {
@@ -165,8 +192,7 @@ onMounted(() => {
 watch(todo, () => {
   name.value = todo.value.name
   items.value = new Array(...todo.value.list)
-
-  debouncedSave(todo.value)
+  validation()
 }, { deep: true })
 
 </script>
@@ -178,7 +204,7 @@ watch(todo, () => {
       <h3>
         Name:
       </h3>
-      <UiInput placeholder="Enter name" v-model="name" @update:model-value="debouncedName" />
+      <UiInput placeholder="Enter name" v-model="name" @update:model-value="debouncedName" :error="errorName ? 'The name field is required' : ''" />
     </div>
 
 
@@ -189,9 +215,10 @@ watch(todo, () => {
 
       <div v-if="items.length" class="page-edit__list">
         <div v-for="(item, index) in items" :key="index" class="page-edit__row">
-          <UiCheckbox v-model="item.isCompleted" editable :label="item.content"
+          <UiCheckbox v-model="item.checked" editable :label="item.text"
+            :error="errorsItems[item.index] ? 'The text field is required' : ''"
             @update:model-value="changeItemFlag(item.index)"
-            @changeLabel="(newLabel) => handleChangeItemText(item.index, item.content, newLabel)" />
+            @changeLabel="(newLabel) => handleChangeItemText(item.index, item.text, newLabel)" />
 
           <UiButton variant="danger" class="page-edit__control-btn" @click="removeItem(index, item)">
             <Delete />
@@ -200,13 +227,9 @@ watch(todo, () => {
       </div>
 
 
-      <div class="page-edit__list-controls">
-        <UiInput placeholder="Enter todo item" v-model="text" />
-
-        <UiButton @click="handleAdd">
-          Add todo item
-        </UiButton>
-      </div>
+      <UiButton @click="handleAdd">
+        Add todo item
+      </UiButton>
 
     </div>
 
@@ -240,8 +263,8 @@ watch(todo, () => {
   <ModalsModalConfirm v-if="isShowModalCancelChanges" title="Confirm" message="Cancel all changes?" confirm-text="Ok"
     cancel-text="Cancel" @confirm="onCancelChanges" @cancel="isShowModalCancelChanges = false" />
 
-  <ModalsModalConfirm v-if="loadedDraftData != null" title="Draft" message="Approve draft changes?" confirm-text="Approve"
-    cancel-text="Cancel" @confirm="handleLoadDraft" @cancel="handleClearDraft" />
+  <ModalsModalConfirm v-if="loadedDraftData != null" title="Draft" message="Approve draft changes?"
+    confirm-text="Approve" cancel-text="Cancel" @confirm="handleLoadDraft" @cancel="handleClearDraft" />
 </template>
 
 <style lang="scss" scoped>

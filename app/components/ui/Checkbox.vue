@@ -7,6 +7,7 @@ interface ICheckboxProps {
     label?: string;
     editable?: boolean;
     disabled?: boolean;
+    error?: string;
 }
 
 const props = withDefaults(defineProps<ICheckboxProps>(), {
@@ -33,7 +34,7 @@ const handleChangeLabel = (text: string | number) => {
 const debouncedText = (text: string | number) => {
   handleChangeLabel(text)
 }
-const debouncedFn = debounce(debouncedText, 1000);
+const debouncedFn = debounce(debouncedText, 500);
 
 const handleEnter = (event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -69,6 +70,7 @@ const handleEnter = (event: Event) => {
         <UiInput
             v-if="editable"
             :model-value="label"
+            :error
             @update:model-value="debouncedFn"
             @keyup.enter="handleEnter"
         />

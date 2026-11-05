@@ -1,12 +1,12 @@
 <script setup lang="ts">
-interface Props {
+interface IModalConfirmProps {
     title?: string;
     message: string;
     confirmText?: string;
     cancelText?: string;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<IModalConfirmProps>(), {
     title: '',
     confirmText: '',
     cancelText: '',

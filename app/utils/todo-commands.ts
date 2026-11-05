@@ -1,4 +1,5 @@
-import type { ITodo, ITodoItem } from "~/store/todo";
+import type { ITodo, ITodoItem } from "~/types/todo";
+import type { Command } from './command'
 
 export class ChangeNameCommand implements Command {
     todo: ITodo;
@@ -55,7 +56,7 @@ export class ChangeTodoItemFlagCommand implements Command {
     revertFlag(): void {
         const item = this.todo.list.find(item => item.index === this.index)
         if (item) {
-            item.isCompleted = !item.isCompleted
+            item.checked = !item.checked
         }
     }
 
@@ -86,14 +87,14 @@ export class ChangeTodoItemTextCommand implements Command {
     execute(): void {
         const item = this.todo.list.find(item => item.index === this.index)
         if (item) {
-            item.content = this.newText
+            item.text = this.newText
         }
     }
 
     undo(): void {
         const item = this.todo.list.find(item => item.index === this.index)
         if (item) {
-            item.content = this.oldText
+            item.text = this.oldText
         }
     }
 }

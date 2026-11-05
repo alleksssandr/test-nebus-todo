@@ -1,25 +1,12 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-
+import { ref, computed, watch } from 'vue' 
 import { loadFromStorage, saveToStorage } from '~/utils/storage'
+import type { ITodo, ITodoItem } from '~/types/todo';
 
 const STORAGE_KEY = 'todos'
 
-export interface ITodoItem {
-  index: number
-  isCompleted: boolean
-  content: string
-}
-
-export interface ITodo {
-  id: string
-  name: string
-  list: ITodoItem[]
-}
-
 interface ITodoStore {
   todos: Ref<ITodo[]>
-  total: Ref<number>
   addTodo: (todo: ITodo) => void
   updateTodo: (todo: ITodo) => void
   deleteTodo: (id: string) => void
@@ -29,21 +16,21 @@ interface ITodoStore {
 export const useTodoStore = defineStore('todos', (): ITodoStore => {
 
   const todos = ref<ITodo[]>([])
-  const total = computed(() => todos.value.length)
-
 
   function addTodo(todo: ITodo): void {
-    todos.value.push(todo)
+    todos.value.push({...todo, date: new Date().getTime() })
     saveToStorage(STORAGE_KEY, todos.value)
   }
-
 
   function updateTodo(newTodo: ITodo) {
     const todo = todos.value.find(todo => todo.id === newTodo.id)
     if (todo) {
+      todo.id = newTodo.id,
       todo.name = newTodo.name,
-      todo.list = new Array(...newTodo.list)
+      todo.date = newTodo.date,
+      todo.list = newTodo.list.map(i => (({ index: i.index, text: i.text, checked: i.checked })))
     }
+
     saveToStorage(STORAGE_KEY, todos.value)
   }
 
@@ -52,6 +39,7 @@ export const useTodoStore = defineStore('todos', (): ITodoStore => {
     if (index !== -1) {
       todos.value.splice(index, 1)
     }
+
     saveToStorage(STORAGE_KEY, todos.value)
   }
 
@@ -65,10 +53,9 @@ export const useTodoStore = defineStore('todos', (): ITodoStore => {
 
   return {
     todos,
-    total,
+    getTodo,
     addTodo,
     updateTodo,
     deleteTodo,
-    getTodo
   }
 })

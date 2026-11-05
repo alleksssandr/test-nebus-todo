@@ -2,11 +2,13 @@
 interface IInputProps {
     modelValue?: string | number;
     placeholder?: string;
+    error?: string;
 }
 
 const props = withDefaults(defineProps<IInputProps>(), {
     modelValue: '',
     placeholder: '',
+    error: '',
 });
 
 const emit = defineEmits<{
@@ -22,7 +24,7 @@ watch(() => props.modelValue, (newVal) => {
 const handleInput = (event: Event) => {
     const target = event.target as HTMLInputElement;
     const value = target.value;
-    
+
     localValue.value = value;
     emit('update:modelValue', value);
 };
@@ -31,26 +33,20 @@ const handleInput = (event: Event) => {
 
 <template>
     <div class="input-wrapper">
-        <input
-            :value="localValue"
-            type="text"
-            :placeholder="placeholder"
-            class="input"
-            @input="handleInput"
-        />
+        <input :value="localValue" type="text" :placeholder="error ? error : placeholder" class="input"
+            :class="[{ 'input_error': error }]" @input="handleInput" />
     </div>
 </template>
 
 <style lang="scss" scoped>
 .input-wrapper {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
     width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .input {
-    width: 100%;
     height: 40px;
     padding: 0 12px;
     font-size: 14px;
@@ -69,6 +65,18 @@ const handleInput = (event: Event) => {
     &:focus {
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    &_error {
+        border-color: #ef4444;
+
+        &::placeholder {
+            color: #ef4444;
+        }
+
+        &:focus {
+            border-color: #ef4444;
+        }
     }
 }
 </style>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Delete from '~/assets/icons/delete.vue';
-import type { ITodoItem } from '~/store/todo';
+import type { ITodoItem } from '~/types/todo';
 
 const MAX_VISIBLE_ITEMS = 3;
 
@@ -38,15 +38,15 @@ const handleDelete = () => {
             <h3 class="todo-card__title">{{ name }}</h3>
     
             <ul class="todo-card__list">
-                <li v-for="(todoItem, index) in visibleItems" :key="`item-${index}`" class="todo-card__list-item">
-                    <UiCheckbox v-model="todoItem.isCompleted" disabled :label="todoItem.content"/>
+                <li v-for="todoItem in visibleItems" :key="`item-${props.id}-${todoItem.index}`" class="todo-card__list-item">
+                    <UiCheckbox :model-value="todoItem.checked" disabled :label="todoItem.text"/>
                 </li>
             </ul>
         </div>
 
         <div class="todo-card__actions">
             <UiButton @click="handleOpen">
-                Открыть
+                Open
             </UiButton>
 
             <UiButton variant="danger" @click="handleDelete">
@@ -80,7 +80,6 @@ const handleDelete = () => {
         line-height: 1.4;
         color: #1f2937;
         word-break: break-word;
-        text-overflow: ellipsis;
         overflow: hidden;
         text-overflow: ellipsis;
         -webkit-box: initial;
