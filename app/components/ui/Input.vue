@@ -13,6 +13,7 @@ const props = withDefaults(defineProps<IInputProps>(), {
 
 const emit = defineEmits<{
     (e: 'update:modelValue', value: string | number): void;
+    (e: 'blur', value: string | number): void;
 }>();
 
 const localValue = ref(props.modelValue);
@@ -29,12 +30,20 @@ const handleInput = (event: Event) => {
     emit('update:modelValue', value);
 };
 
+const handleBlur = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const value = target.value;
+
+    localValue.value = value;
+    emit('blur', value);
+};
+
 </script>
 
 <template>
     <div class="input-wrapper">
         <input :value="localValue" type="text" :placeholder="error ? error : placeholder" class="input"
-            :class="[{ 'input_error': error }]" @input="handleInput" />
+            :class="[{ 'input_error': error }]" @input="handleInput" @blur="handleBlur"/>
     </div>
 </template>
 

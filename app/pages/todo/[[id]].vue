@@ -67,6 +67,10 @@ const debouncedNameExecute = () => {
 }
 const debouncedName = debounce(debouncedNameExecute, 500);
 
+const handleBlurName = () => {
+  debouncedName.cancel()
+  changeName(name.value)
+}
 
 const name = ref<string>('')
 const text = ref<string>('')
@@ -225,7 +229,8 @@ watch(todo, () => {
         Name:
       </h3>
       <UiInput placeholder="Enter name" v-model="name" @update:model-value="debouncedName"
-        :error="errorName ? 'The name field is required' : ''" />
+        :error="errorName ? 'The name field is required' : ''" 
+        @blur="handleBlurName"/>
     </div>
 
 
@@ -260,7 +265,7 @@ watch(todo, () => {
         Save
       </UiButton>
 
-      <UiButton :disabled="!canUndo || !canRedo" @click="handleCancelChanges">
+      <UiButton :disabled="!canUndo && !canRedo" @click="handleCancelChanges">
         Cancel changes
       </UiButton>
 
