@@ -39,11 +39,7 @@ const handleDelete = () => {
     
             <ul class="todo-card__list">
                 <li v-for="(todoItem, index) in visibleItems" :key="`item-${index}`" class="todo-card__list-item">
-                    <input type="checkbox" :checked="todoItem.isCompleted" disabled>
-    
-                    <span>
-                        {{ todoItem.content }}
-                    </span>
+                    <UiCheckbox v-model="todoItem.isCompleted" disabled :label="todoItem.content"/>
                 </li>
             </ul>
         </div>

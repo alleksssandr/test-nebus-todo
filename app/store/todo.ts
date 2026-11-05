@@ -13,7 +13,7 @@ export interface ITodoItem {
 
 export interface ITodo {
   id: string
-  title: string
+  name: string
   list: ITodoItem[]
 }
 
@@ -21,6 +21,7 @@ interface ITodoStore {
   todos: Ref<ITodo[]>
   total: Ref<number>
   addTodo: (todo: ITodo) => void
+  updateTodo: (todo: ITodo) => void
   deleteTodo: (id: string) => void
   getTodo: (id: string) => ITodo | null
 }
@@ -37,11 +38,21 @@ export const useTodoStore = defineStore('todos', (): ITodoStore => {
   }
 
 
+  function updateTodo(newTodo: ITodo) {
+    const todo = todos.value.find(todo => todo.id === newTodo.id)
+    if (todo) {
+      todo.name = newTodo.name,
+      todo.list = new Array(...newTodo.list)
+    }
+    saveToStorage(STORAGE_KEY, todos.value)
+  }
+
   function deleteTodo(id: string) {
     const index = todos.value.findIndex(todo => todo.id === id)
     if (index !== -1) {
       todos.value.splice(index, 1)
     }
+    saveToStorage(STORAGE_KEY, todos.value)
   }
 
   function getTodo(id: string) {
@@ -56,6 +67,7 @@ export const useTodoStore = defineStore('todos', (): ITodoStore => {
     todos,
     total,
     addTodo,
+    updateTodo,
     deleteTodo,
     getTodo
   }

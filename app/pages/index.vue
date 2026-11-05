@@ -42,7 +42,7 @@ const handleDelete = () => {
       :key="`todo-${todo.id}`"
       :id="todo.id"
       :list="todo.list"
-      :name="todo.title"
+      :name="todo.name"
       @open="handleOpen"
       @delete="handleConfirmDelete"
     />

@@ -5,25 +5,44 @@ import Minus from '~/assets/icons/minus.vue';
 interface ICheckboxProps {
     modelValue?: boolean;
     label?: string;
+    editable?: boolean;
     disabled?: boolean;
 }
 
 const props = withDefaults(defineProps<ICheckboxProps>(), {
     modelValue: false,
     label: '',
+    editable: false,
     disabled: false,
 });
 
 const emit = defineEmits<{
     (e: 'update:modelValue', value: boolean): void;
-    (e: 'change', value: boolean): void;
+    (e: 'changeLabel', value: string): void;
 }>();
 
 const handleChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
-    emit('update:modelValue', target.checked);
-    emit('change', target.checked);
+    emit('update:modelValue', !target.checked);
 };
+
+const handleChangeLabel = (text: string | number) => {
+    emit('changeLabel', String(text));
+};
+
+const debouncedText = (text: string | number) => {
+  handleChangeLabel(text)
+}
+const debouncedFn = debounce(debouncedText, 1000);
+
+const handleEnter = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const newText = String(target.value)
+    if (props.label !== newText) {
+        emit('changeLabel', newText);
+    }
+}
+
 </script>
 
 <template>
@@ -47,7 +66,13 @@ const handleChange = (event: Event) => {
             <Minus v-else/>
         </div>
 
-        <span v-if="label || $slots.default" class="checkbox__label">
+        <UiInput
+            v-if="editable"
+            :model-value="label"
+            @update:model-value="debouncedFn"
+            @keyup.enter="handleEnter"
+        />
+        <span v-else-if="label || $slots.default" class="checkbox__label">
             <slot>{{ label }}</slot>
         </span>
     </label>
@@ -69,8 +94,10 @@ const handleChange = (event: Event) => {
     }
 
     &_disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
+        cursor: initial;
+        .checkbox_checked {
+            opacity: 0.5;
+        }
     }
 
     &__input {

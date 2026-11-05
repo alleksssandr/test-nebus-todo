@@ -2,24 +2,18 @@
 interface IInputProps {
     modelValue?: string | number;
     placeholder?: string;
-    debounce?: number;
 }
 
 const props = withDefaults(defineProps<IInputProps>(), {
     modelValue: '',
     placeholder: '',
-    debounce: 300,
 });
 
 const emit = defineEmits<{
     (e: 'update:modelValue', value: string | number): void;
-    (e: 'input', value: string | number): void;
-    (e: 'change', value: string | number): void;
-    (e: 'clear'): void;
 }>();
 
 const localValue = ref(props.modelValue);
-let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 watch(() => props.modelValue, (newVal) => {
     localValue.value = newVal;
@@ -30,34 +24,9 @@ const handleInput = (event: Event) => {
     const value = target.value;
     
     localValue.value = value;
-    
-    if (debounceTimer) {
-        clearTimeout(debounceTimer);
-    }
-    
-    debounceTimer = setTimeout(() => {
-        emit('update:modelValue', value);
-        emit('input', value);
-        debounceTimer = null;
-    }, props.debounce);
+    emit('update:modelValue', value);
 };
 
-const handleChange = (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    emit('change', target.value);
-};
-
-const handleClear = () => {
-    localValue.value = '';
-    emit('update:modelValue', '');
-    emit('clear');
-};
-
-onUnmounted(() => {
-    if (debounceTimer) {
-        clearTimeout(debounceTimer);
-    }
-});
 </script>
 
 <template>
@@ -68,7 +37,6 @@ onUnmounted(() => {
             :placeholder="placeholder"
             class="input"
             @input="handleInput"
-            @change="handleChange"
         />
     </div>
 </template>
