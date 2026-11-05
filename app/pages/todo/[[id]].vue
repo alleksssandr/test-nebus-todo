@@ -259,7 +259,7 @@ watch(todo, () => {
         Save
       </UiButton>
 
-      <UiButton :disabled="!canUndo || !canUndo" @click="handleCancelChanges">
+      <UiButton :disabled="!canUndo || !canRedo" @click="handleCancelChanges">
         Cancel changes
       </UiButton>
 
