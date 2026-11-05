@@ -16,6 +16,20 @@ const visibleItems = computed(() =>
     props.list.slice(0, MAX_VISIBLE_ITEMS)
 );
 
+const emit = defineEmits<{
+    (e: 'open', value: string): void;
+    (e: 'delete', value: string, name: string): void;
+}>();
+
+const handleOpen = () => {
+    emit('open', props.id)
+}
+
+const handleDelete = () => {
+    emit('delete', props.id, props.name)
+}
+
+
 </script>
 
 <template>
@@ -35,11 +49,11 @@ const visibleItems = computed(() =>
         </div>
 
         <div class="todo-card__actions">
-            <UiButton>
+            <UiButton @click="handleOpen">
                 Открыть
             </UiButton>
 
-            <UiButton variant="danger">
+            <UiButton variant="danger" @click="handleDelete">
                 <Delete/>
             </UiButton>
         </div>
@@ -70,6 +84,14 @@ const visibleItems = computed(() =>
         line-height: 1.4;
         color: #1f2937;
         word-break: break-word;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        -webkit-box: initial;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
     }
 
     &__list {

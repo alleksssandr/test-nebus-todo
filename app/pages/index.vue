@@ -3,9 +3,31 @@ import { useTodoStore } from '@/store/todo';
 import Add from '~/assets/icons/add.vue';
 import Delete from '~/assets/icons/delete.vue';
 
+const router = useRouter()
+
 const todoStore = useTodoStore()
 
 const { todos } = storeToRefs(todoStore)
+
+const handleOpen = (id: string) => {
+  router.push({ name: 'todo-id', params: { id: id}})
+}
+
+const deleteTodoId = ref<string>('')
+const deleteTodoName = ref<string>('')
+
+const handleConfirmDelete = (id: string, name: string) => {
+  deleteTodoId.value = id
+  deleteTodoName.value = name
+}
+
+const handleDelete = () => {
+  if (deleteTodoId.value) {
+    todoStore.deleteTodo(deleteTodoId.value)
+    deleteTodoId.value = ''
+  }
+}
+
 </script>
 
 <template>
@@ -21,8 +43,20 @@ const { todos } = storeToRefs(todoStore)
       :id="todo.id"
       :list="todo.list"
       :name="todo.title"
+      @open="handleOpen"
+      @delete="handleConfirmDelete"
     />
   </div>
+
+  <ModalsModalConfirm
+    v-if="deleteTodoId"
+    title="Confirm"
+    :message="`Delete todo ${deleteTodoName}`"
+    confirm-text="Delete"
+    cancel-text="Cancel"
+    @confirm="handleDelete"
+    @cancel="deleteTodoId = ''"
+  />
 </template>
 
 <style lang="scss" scoped>

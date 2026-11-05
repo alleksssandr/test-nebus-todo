@@ -4,7 +4,11 @@ import type { ITodoItem } from '~/store/todo';
 
 import { useTodoStore } from '~/store/todo'
 
-const { addTodo } = useTodoStore()
+const { addTodo, getTodo } = useTodoStore()
+
+const route = useRoute()
+const router = useRouter()
+
 
 const name = ref<string>('')
 
@@ -27,14 +31,27 @@ const handleAdd = () => {
 }
 
 const handleSave = () => {
+  const uuid = crypto.randomUUID()
   addTodo({
-    id: crypto.randomUUID(),
+    id: uuid,
     title: name.value,
     list: items.value
   })
+
+  router.push({params: {id : uuid}})
 }
 
-const isEditNamne = ref<boolean>(true)
+onMounted(() => {
+  const { id } = route.params
+  if (id && id.length) {
+    const item = getTodo(id as string)
+
+    if (item) {
+      name.value = item.title
+      items.value = item.list
+    }
+  }
+})
 
 </script>
 
@@ -82,13 +99,6 @@ const isEditNamne = ref<boolean>(true)
 
 
         <div class="page-edit__block page-edit__actions">
-          <!--
-            сохранить изменения;
-            отменить редактирование (необходимо подтверждение);
-            удалить (необходимо подтверждение);
-            отменить внесённое изменение (работает как Ctrl+Z);
-            повторить отменённое изменение (работает как Shift+Ctrl+Z).
-          -->
           <UiButton @click="handleSave">
             Save
           </UiButton>
@@ -117,7 +127,9 @@ const isEditNamne = ref<boolean>(true)
 .page-edit {
   margin: var(--space-main-y) var(--space-main-x);
   display: grid;
-  grid-gap: 18px;
+  grid-gap: 12px;
+  grid-auto-rows: 135px;
+  grid-template-columns: 1fr 1fr;
   grid-template-areas: "name list" "actions list";
 
   &__block {
@@ -131,6 +143,10 @@ const isEditNamne = ref<boolean>(true)
 
   &__name {
     grid-area: name;
+
+    gap: 12px;
+    display: flex;
+    flex-direction: column;
   }
   &__list-wrap {
     grid-area: list;
@@ -141,6 +157,8 @@ const isEditNamne = ref<boolean>(true)
   }
   &__actions {
     grid-area: actions;
+    gap: 12px;
+    display: flex;
   }
 
   &__list {

@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import Accept from '~/assets/icons/accept.vue';
+import Minus from '~/assets/icons/minus.vue';
+
 interface ICheckboxProps {
     modelValue?: boolean;
     label?: string;
@@ -40,33 +43,8 @@ const handleChange = (event: Event) => {
         />
 
         <div class="checkbox__box">
-            <svg
-                v-if="modelValue"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                class="checkbox__icon"
-            >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="3"
-                    d="M5 13l4 4L19 7"
-                />
-            </svg>
-            <svg
-                v-else
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                class="checkbox__icon"
-            >
-                <path
-                    stroke-linecap="round"
-                    stroke-width="3"
-                    d="M5 12h14"
-                />
-            </svg>
+            <Accept v-if="modelValue"/>
+            <Minus v-else/>
         </div>
 
         <span v-if="label || $slots.default" class="checkbox__label">
@@ -129,8 +107,9 @@ const handleChange = (event: Event) => {
 
     &__label {
         font-size: 14px;
-        color: #374151;
         line-height: 1.5;
+        color: #374151;
+        word-break: break-all;
     }
 }
 </style>
