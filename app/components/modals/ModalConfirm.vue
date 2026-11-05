@@ -73,6 +73,7 @@ const handleCancel = () => {
         color: #4b5563;
         line-height: 1.6;
         margin: 0;
+        word-break: break-all;
     }
 }
 </style>

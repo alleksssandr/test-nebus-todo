@@ -59,7 +59,7 @@ const handleInput = (event: Event) => {
     transition: all 0.15s ease;
 
     &::placeholder {
-        color: #9ca3af;
+        color: var(--color-text-disabled);
     }
 
     &:focus {

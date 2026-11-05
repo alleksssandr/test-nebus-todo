@@ -2,7 +2,7 @@
 import Accept from '~/assets/icons/accept.vue';
 import Minus from '~/assets/icons/minus.vue';
 
-interface ICheckboxProps {
+interface ITodoItemProps {
     modelValue?: boolean;
     label?: string;
     editable?: boolean;
@@ -10,7 +10,7 @@ interface ICheckboxProps {
     error?: string;
 }
 
-const props = withDefaults(defineProps<ICheckboxProps>(), {
+const props = withDefaults(defineProps<ITodoItemProps>(), {
     modelValue: false,
     label: '',
     editable: false,
@@ -48,21 +48,21 @@ const handleEnter = (event: Event) => {
 
 <template>
     <label
-        class="checkbox"
+        class="todo-item"
         :class="{
-            'checkbox_disabled': disabled,
-            'checkbox_checked': modelValue,
+            'todo-item_disabled': disabled,
+            'todo-item_checked': modelValue,
         }"
     >
         <input
             type="checkbox"
             :checked="modelValue"
             :disabled="disabled"
-            class="checkbox__input"
+            class="todo-item__input"
             @change="handleChange"
         />
 
-        <div class="checkbox__box">
+        <div class="todo-item__box">
             <Accept v-if="modelValue"/>
             <Minus v-else/>
         </div>
@@ -74,30 +74,30 @@ const handleEnter = (event: Event) => {
             @update:model-value="debouncedFn"
             @keyup.enter="handleEnter"
         />
-        <span v-else-if="label || $slots.default" class="checkbox__label">
+        <span v-else-if="label || $slots.default" class="todo-item__label">
             <slot>{{ label }}</slot>
         </span>
     </label>
 </template>
 
 <style lang="scss" scoped>
-.checkbox {
+.todo-item {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--space-md);
     cursor: pointer;
     user-select: none;
     transition: opacity 0.15s ease;
 
     &:hover:not(&_disabled) {
-        .checkbox__box {
-            border-color: #3b82f6;
+        .todo-item__box {
+            border-color: var(--color-primary);
         }
     }
 
     &_disabled {
         cursor: initial;
-        .checkbox_checked {
+        .todo-item_checked {
             opacity: 0.5;
         }
     }
@@ -116,13 +116,13 @@ const handleEnter = (event: Event) => {
         height: 20px;
         background: white;
         border: 2px solid #d1d5db;
-        border-radius: 4px;
+        border-radius: var(--radius-sm);
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.15s ease;
 
-        .checkbox_checked & {
+        .todo-item_checked & {
             background: #3b82f6;
             border-color: #3b82f6;
         }
@@ -139,6 +139,14 @@ const handleEnter = (event: Event) => {
         line-height: 1.5;
         color: #374151;
         word-break: break-all;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+        -webkit-box: initial;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
     }
 }
 </style>

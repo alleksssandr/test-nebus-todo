@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import Close from '~/assets/icons/close.vue';
 
+const modal = ref<HTMLElement | null>(null)
+
+useFocusTrap(modal)
+
 interface IModalContainerProps {
     title?: string;
 }
@@ -42,6 +46,7 @@ onUnmounted(() => {
     <Teleport to="body">
         <Transition name="modal">
             <div
+                ref="modal"
                 class="modal-overlay"
                 @click="handleOverlayClick"
             >

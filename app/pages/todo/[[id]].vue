@@ -13,7 +13,7 @@ const {
   updateTodo,
   getTodo,
   deleteTodo
-} =  todoStore;
+} = todoStore;
 const { todos } = storeToRefs(todoStore)
 
 const route = useRoute()
@@ -50,7 +50,7 @@ const {
   canUndo,
   canRedo,
   clearHistory
-} = useTodoHistory({ id: '', name: '', list: [], date: new Date().getTime()}, debouncedSave)
+} = useTodoHistory({ id: '', name: '', list: [], date: new Date().getTime() }, debouncedSave)
 
 useUndoRedoKeypress(undo, redo)
 
@@ -107,8 +107,10 @@ const handleSave = () => {
 
   if (todo.value.id) {
     updateTodo(todo.value)
+    removeDraft()
   } else {
-     const uuid = crypto.randomUUID()
+    removeDraft()
+    const uuid = crypto.randomUUID()
 
     addTodo({
       id: uuid,
@@ -120,7 +122,7 @@ const handleSave = () => {
   }
 
   clearHistory()
-  removeDraft()
+  
 }
 
 const handleDelete = () => {
@@ -169,6 +171,16 @@ const handleClearDraft = () => {
   loadedDraftData.value = null
 }
 
+const handleStorageChange = (e: StorageEvent) => {
+  if (e.key === 'app:todos') {
+    const exists = todoStore.getTodo(route.params.id as string);
+    if (!exists) {
+      console.warn(`[storage]: not exists this todo (${route.params.id})`);
+      router.push('/');
+    }
+  }
+};
+
 onMounted(() => {
   if (id.value) {
     const item = getTodo(id.value)
@@ -186,8 +198,15 @@ onMounted(() => {
     }
   }
 
+
+  window.addEventListener('storage', handleStorageChange);
+
   loadedDraftData.value = loadDraft()
 })
+
+onUnmounted(() =>
+  window.removeEventListener('storage', handleStorageChange)
+);
 
 watch(todo, () => {
   name.value = todo.value.name
@@ -204,7 +223,8 @@ watch(todo, () => {
       <h3>
         Name:
       </h3>
-      <UiInput placeholder="Enter name" v-model="name" @update:model-value="debouncedName" :error="errorName ? 'The name field is required' : ''" />
+      <UiInput placeholder="Enter name" v-model="name" @update:model-value="debouncedName"
+        :error="errorName ? 'The name field is required' : ''" />
     </div>
 
 
@@ -215,7 +235,7 @@ watch(todo, () => {
 
       <div v-if="items.length" class="page-edit__list">
         <div v-for="(item, index) in items" :key="index" class="page-edit__row">
-          <UiCheckbox v-model="item.checked" editable :label="item.text"
+          <TodoItem v-model="item.checked" editable :label="item.text"
             :error="errorsItems[item.index] ? 'The text field is required' : ''"
             @update:model-value="changeItemFlag(item.index)"
             @changeLabel="(newLabel) => handleChangeItemText(item.index, item.text, newLabel)" />
@@ -328,6 +348,32 @@ watch(todo, () => {
 
   &__control-btn {
     width: 40px;
+  }
+
+  @media (max-width: 1024px) {
+    &__actions {
+      flex-wrap: wrap;
+    }
+  }
+  @media (max-width: 768px) {
+    grid-auto-rows: initial;
+    grid-template-columns: 1fr;
+    grid-template-areas: "name" "list" "actions";
+
+    &__actions {
+      gap: 8px;
+      flex-wrap: nowrap;
+    }
+
+    &__block {
+      padding: 10px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    &__actions {
+      flex-wrap: wrap;
+    }
   }
 }
 </style>

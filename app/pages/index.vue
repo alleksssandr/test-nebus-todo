@@ -8,7 +8,7 @@ const todoStore = useTodoStore()
 const { todos } = storeToRefs(todoStore)
 
 const handleOpen = (id: string) => {
-  router.push({ name: 'todo-id', params: { id: id}})
+  router.push({ name: 'todo-id', params: { id: id } })
 }
 
 const deleteTodoId = ref<string>('')
@@ -33,41 +33,39 @@ const handleDelete = () => {
     <div v-if="!todos.length" class="page-main__empty">
       Todo list is empty
     </div>
-    
-    <TodoCard
-      v-else
-      v-for="todo in todos"
-      :key="`todo-${todo.id}`"
-      :id="todo.id"
-      :list="todo.list"
-      :name="todo.name"
-      @open="handleOpen"
-      @delete="handleConfirmDelete"
-    />
+
+    <TodoCard v-else v-for="todo in todos" :key="`todo-${todo.id}`" :id="todo.id" :list="todo.list" :name="todo.name"
+      @open="handleOpen" @delete="handleConfirmDelete" />
   </div>
 
-  <ModalsModalConfirm
-    v-if="deleteTodoId"
-    title="Confirm"
-    :message="`Delete todo ${deleteTodoName}`"
-    confirm-text="Delete"
-    cancel-text="Cancel"
-    @confirm="handleDelete"
-    @cancel="deleteTodoId = ''"
-  />
+  <ModalsModalConfirm v-if="deleteTodoId" title="Confirm" :message="`Delete todo ${deleteTodoName}`"
+    confirm-text="Delete" cancel-text="Cancel" @confirm="handleDelete" @cancel="deleteTodoId = ''" />
 </template>
 
 <style lang="scss" scoped>
 .page-main {
   margin: var(--space-main-y) var(--space-main-x);
-  gap: 18px;
-  display: flex;
-  flex-wrap: wrap;
+  padding-bottom: var(--space-main-y);
+  gap: var(--space-md);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(200px, 1fr));
 
   &__empty {
     width: 100%;
     text-align: center;
     font-size: 22px;
+  }
+
+  @media (max-width: 1440px) {
+    grid-template-columns: repeat(3, minmax(200px, 1fr));
+  }
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(1, 1fr);
   }
 }
 </style>

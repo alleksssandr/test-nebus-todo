@@ -64,8 +64,8 @@ const handleClick = (event: MouseEvent) => {
     cursor: pointer;
 
     &_variant-danger {
-        border-color: #ef4444;
-        color: #ef4444;
+        border-color: var(--color-danger);
+        color: var(--color-danger);
 
         &:hover:not(:disabled) {
             background: #ffefef;

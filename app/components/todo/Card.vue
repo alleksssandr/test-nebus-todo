@@ -39,7 +39,7 @@ const handleDelete = () => {
     
             <ul class="todo-card__list">
                 <li v-for="todoItem in visibleItems" :key="`item-${props.id}-${todoItem.index}`" class="todo-card__list-item">
-                    <UiCheckbox :model-value="todoItem.checked" disabled :label="todoItem.text"/>
+                    <TodoItem :model-value="todoItem.checked" disabled :label="todoItem.text"/>
                 </li>
             </ul>
         </div>
@@ -61,7 +61,7 @@ const handleDelete = () => {
 .todo-card {
     min-width: 250px;
     max-width: 500px;
-    height: 250px;
+    min-height: 250px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -110,6 +110,10 @@ const handleDelete = () => {
         display: grid;
         grid-gap: 12px;
         grid-template-columns: 1fr 40px;
+    }
+
+    @media (max-width: 768px) {
+        max-width: 100%;
     }
 }
 </style>

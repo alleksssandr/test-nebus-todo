@@ -6,7 +6,7 @@ export default defineNuxtConfig({
     }
   },
 
-  css: ['~/assets/styles/global.scss'],
+  css: ['~/assets/styles/global.scss', '~/assets/styles/variables.scss'],
 
   modules: ['@pinia/nuxt'],
 
