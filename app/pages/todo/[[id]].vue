@@ -4,6 +4,7 @@ import Edit from '~/assets/icons/edit.vue';
 import type { ITodo, ITodoItem } from '~/types/todo';
 
 import { useTodoStore } from '~/store/todo'
+import { generateUUID } from '~/utils/uuid';
 
 type TItemError = { [key: number]: boolean }
 
@@ -110,7 +111,7 @@ const handleSave = () => {
     removeDraft()
   } else {
     removeDraft()
-    const uuid = crypto.randomUUID()
+    const uuid = generateUUID()
 
     addTodo({
       id: uuid,
