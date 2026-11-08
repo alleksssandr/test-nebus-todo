@@ -227,7 +227,7 @@ watch(todo, () => {
       </h3>
 
       <div v-if="items.length" class="page-edit__list">
-        <div v-for="(item, index) in items" :key="index" class="page-edit__row">
+        <div v-for="(item, index) in items" :key="item.index" class="page-edit__row">
           <TodoItem v-model="item.checked" editable :label="item.text"
             :error="errorsItems[item.index] ? 'The text field is required' : ''"
             @update:model-value="changeItemFlag(item.index)"
