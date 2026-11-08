@@ -15,7 +15,6 @@ const {
   getTodo,
   deleteTodo
 } = todoStore;
-const { todos } = storeToRefs(todoStore)
 
 const route = useRoute()
 const router = useRouter()
@@ -67,14 +66,13 @@ const handleBlurName = () => {
 }
 
 const name = ref<string>('')
-const text = ref<string>('')
 
 const items = ref<ITodoItem[]>([])
 
 const handleAdd = () => {
   addNewItem({
     index: items.value.length,
-    text: text.value,
+    text: '',
     checked: false
   })
 }

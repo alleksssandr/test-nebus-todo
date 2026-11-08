@@ -34,12 +34,13 @@ const handleChangeLabel = (text: string | number) => {
     emit('changeLabel', String(text));
 };
 
+const debouncedFn = debounce(handleChangeLabel, 500)
+
 const handleBlurLabel = (text: string | number) => {
   debouncedFn.cancel()
   handleChangeLabel(String(text))
 }
 
-const debouncedFn = debounce(handleChangeLabel, 500)
 
 const handleEnter = (event: Event) => {
     const target = event.target as HTMLInputElement;
