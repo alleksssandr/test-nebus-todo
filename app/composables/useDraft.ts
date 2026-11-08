@@ -1,11 +1,11 @@
 import type { ITodo, ITodoItem } from '~/types/todo'
 
-const DRAFT_PREFIX = 'draft'
+
 
 export function useDraft(id: string) {
     const debouncedSave = debounce(saveDraft, 2000);
 
-    const storageKey = `${DRAFT_PREFIX}-${id}`
+    const storageKey = `${STORAGE_KEY_DRAFT}-${id}`
 
 
     function saveDraft(todo: ITodo) {

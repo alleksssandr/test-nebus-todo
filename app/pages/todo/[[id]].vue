@@ -47,6 +47,7 @@ const {
 } = useTodoHistory({ id: '', name: '', list: [], date: new Date().getTime() }, debouncedSave)
 
 useUndoRedoKeypress(undo, redo)
+const { todoStorageChanged } = useStorageControl()
 
 const isShowModalDelete = ref<boolean>(false)
 const isShowModalCancelChanges = ref<boolean>(false)
@@ -79,6 +80,9 @@ const handleAdd = () => {
 }
 
 const handleChangeItemText = (index: number, oldText: string, newText: string) => {
+  if (oldText === newText) {
+    return
+  }
   changeItemText(index, oldText, newText)
 }
 
@@ -164,20 +168,17 @@ const handleLoadDraft = () => {
   }
 }
 
+const handleLoadOtherTabChanges = () => {
+  if (todoStorageChanged.value) {
+    setTodo(todoStorageChanged.value)
+    todoStorageChanged.value = null
+  }
+}
+
 const handleClearDraft = () => {
   removeDraft()
   loadedDraftData.value = null
 }
-
-const handleStorageChange = (e: StorageEvent) => {
-  if (e.key === 'app:todos') {
-    const exists = todoStore.getTodo(route.params.id as string);
-    if (!exists) {
-      console.warn(`[storage]: not exists this todo (${route.params.id})`);
-      router.push('/');
-    }
-  }
-};
 
 onMounted(() => {
   if (id.value) {
@@ -196,15 +197,8 @@ onMounted(() => {
     }
   }
 
-
-  window.addEventListener('storage', handleStorageChange);
-
   loadedDraftData.value = loadDraft()
 })
-
-onUnmounted(() =>
-  window.removeEventListener('storage', handleStorageChange)
-);
 
 watch(todo, () => {
   name.value = todo.value.name
@@ -284,6 +278,9 @@ watch(todo, () => {
 
   <ModalsModalConfirm v-if="loadedDraftData != null" title="Draft" message="Approve draft changes?"
     confirm-text="Approve" cancel-text="Cancel" @confirm="handleLoadDraft" @cancel="handleClearDraft" />
+
+  <ModalsModalConfirm v-if="todoStorageChanged != null" title="Find changes on other tab" message="Approve changes?"
+    confirm-text="Approve" cancel-text="Cancel" @confirm="handleLoadOtherTabChanges" @cancel="todoStorageChanged = null" />
 </template>
 
 <style lang="scss" scoped>

@@ -28,6 +28,9 @@ const handleChange = (event: Event) => {
 };
 
 const handleChangeLabel = (text: string | number) => {
+    if (text === props.label) {
+        return
+    }
     emit('changeLabel', String(text));
 };
 
