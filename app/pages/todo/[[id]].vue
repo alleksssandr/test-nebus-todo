@@ -29,13 +29,6 @@ const id = computed<string>(() => {
   }
 })
 
-const savedTodo = computed<ITodo | null>((): ITodo | null => {
-  if (!id.value) return null
-
-  return todos.value.find(i => i.id === id.value) || null
-})
-
-
 const { loadDraft, debouncedSave, removeDraft } = useDraft(id.value)
 
 const {

@@ -23,15 +23,17 @@ export const useTodoStore = defineStore('todos', (): ITodoStore => {
   }
 
   function updateTodo(newTodo: ITodo) {
-    const todo = todos.value.find(todo => todo.id === newTodo.id)
-    if (todo) {
-      todo.id = newTodo.id,
-      todo.name = newTodo.name,
-      todo.date = newTodo.date,
-      todo.list = newTodo.list.map(i => (({ index: i.index, text: i.text, checked: i.checked })))
-    }
+    const index = todos.value.findIndex(todo => todo.id === newTodo.id)
+    if (index !== -1) {
+      todos.value[index] = {
+        id: newTodo.id,
+        name: newTodo.name,
+        date: newTodo.date,
+        list: newTodo.list.map(i => (({ index: i.index, text: i.text, checked: i.checked })))
+      }
 
-    saveToStorage(STORAGE_KEY, todos.value)
+      saveToStorage(STORAGE_KEY, todos.value)
+    }
   }
 
   function deleteTodo(id: string) {

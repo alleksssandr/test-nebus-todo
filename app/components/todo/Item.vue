@@ -31,6 +31,11 @@ const handleChangeLabel = (text: string | number) => {
     emit('changeLabel', String(text));
 };
 
+const handleBlurLabel = (text: string | number) => {
+  debouncedFn.cancel()
+  handleChangeLabel(String(text))
+}
+
 const debouncedText = (text: string | number) => {
   handleChangeLabel(text)
 }
@@ -71,6 +76,7 @@ const handleEnter = (event: Event) => {
             v-if="editable"
             :model-value="label"
             :error
+            @blur="handleBlurLabel"
             @update:model-value="debouncedFn"
             @keyup.enter="handleEnter"
         />
