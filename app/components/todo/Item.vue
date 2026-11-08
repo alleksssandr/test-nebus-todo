@@ -39,10 +39,7 @@ const handleBlurLabel = (text: string | number) => {
   handleChangeLabel(String(text))
 }
 
-const debouncedText = (text: string | number) => {
-  handleChangeLabel(text)
-}
-const debouncedFn = debounce(debouncedText, 500);
+const debouncedFn = debounce(handleChangeLabel, 500)
 
 const handleEnter = (event: Event) => {
     const target = event.target as HTMLInputElement;
