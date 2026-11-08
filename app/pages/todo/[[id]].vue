@@ -15,7 +15,6 @@ const {
   getTodo,
   deleteTodo
 } = todoStore;
-const { todos } = storeToRefs(todoStore)
 
 const route = useRoute()
 const router = useRouter()
@@ -28,13 +27,6 @@ const id = computed<string>(() => {
     return ''
   }
 })
-
-const savedTodo = computed<ITodo | null>((): ITodo | null => {
-  if (!id.value) return null
-
-  return todos.value.find(i => i.id === id.value) || null
-})
-
 
 const { loadDraft, debouncedSave, removeDraft } = useDraft(id.value)
 
@@ -54,6 +46,7 @@ const {
 } = useTodoHistory({ id: '', name: '', list: [], date: new Date().getTime() }, debouncedSave)
 
 useUndoRedoKeypress(undo, redo)
+const { todoStorageChanged } = useStorageControl()
 
 const isShowModalDelete = ref<boolean>(false)
 const isShowModalCancelChanges = ref<boolean>(false)
@@ -73,19 +66,21 @@ const handleBlurName = () => {
 }
 
 const name = ref<string>('')
-const text = ref<string>('')
 
 const items = ref<ITodoItem[]>([])
 
 const handleAdd = () => {
   addNewItem({
     index: items.value.length,
-    text: text.value,
+    text: '',
     checked: false
   })
 }
 
 const handleChangeItemText = (index: number, oldText: string, newText: string) => {
+  if (oldText === newText) {
+    return
+  }
   changeItemText(index, oldText, newText)
 }
 
@@ -171,20 +166,17 @@ const handleLoadDraft = () => {
   }
 }
 
+const handleLoadOtherTabChanges = () => {
+  if (todoStorageChanged.value) {
+    setTodo(todoStorageChanged.value)
+    todoStorageChanged.value = null
+  }
+}
+
 const handleClearDraft = () => {
   removeDraft()
   loadedDraftData.value = null
 }
-
-const handleStorageChange = (e: StorageEvent) => {
-  if (e.key === 'app:todos') {
-    const exists = todoStore.getTodo(route.params.id as string);
-    if (!exists) {
-      console.warn(`[storage]: not exists this todo (${route.params.id})`);
-      router.push('/');
-    }
-  }
-};
 
 onMounted(() => {
   if (id.value) {
@@ -203,15 +195,8 @@ onMounted(() => {
     }
   }
 
-
-  window.addEventListener('storage', handleStorageChange);
-
   loadedDraftData.value = loadDraft()
 })
-
-onUnmounted(() =>
-  window.removeEventListener('storage', handleStorageChange)
-);
 
 watch(todo, () => {
   name.value = todo.value.name
@@ -240,7 +225,7 @@ watch(todo, () => {
       </h3>
 
       <div v-if="items.length" class="page-edit__list">
-        <div v-for="(item, index) in items" :key="index" class="page-edit__row">
+        <div v-for="(item, index) in items" :key="item.index" class="page-edit__row">
           <TodoItem v-model="item.checked" editable :label="item.text"
             :error="errorsItems[item.index] ? 'The text field is required' : ''"
             @update:model-value="changeItemFlag(item.index)"
@@ -291,6 +276,9 @@ watch(todo, () => {
 
   <ModalsModalConfirm v-if="loadedDraftData != null" title="Draft" message="Approve draft changes?"
     confirm-text="Approve" cancel-text="Cancel" @confirm="handleLoadDraft" @cancel="handleClearDraft" />
+
+  <ModalsModalConfirm v-if="todoStorageChanged != null" title="Find changes on other tab" message="Approve changes?"
+    confirm-text="Approve" cancel-text="Cancel" @confirm="handleLoadOtherTabChanges" @cancel="todoStorageChanged = null" />
 </template>
 
 <style lang="scss" scoped>

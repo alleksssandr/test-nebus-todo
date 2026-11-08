@@ -28,13 +28,19 @@ const handleChange = (event: Event) => {
 };
 
 const handleChangeLabel = (text: string | number) => {
+    if (text === props.label) {
+        return
+    }
     emit('changeLabel', String(text));
 };
 
-const debouncedText = (text: string | number) => {
-  handleChangeLabel(text)
+const debouncedFn = debounce(handleChangeLabel, 500)
+
+const handleBlurLabel = (text: string | number) => {
+  debouncedFn.cancel()
+  handleChangeLabel(String(text))
 }
-const debouncedFn = debounce(debouncedText, 500);
+
 
 const handleEnter = (event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -71,6 +77,7 @@ const handleEnter = (event: Event) => {
             v-if="editable"
             :model-value="label"
             :error
+            @blur="handleBlurLabel"
             @update:model-value="debouncedFn"
             @keyup.enter="handleEnter"
         />

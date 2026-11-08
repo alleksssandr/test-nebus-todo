@@ -1,6 +1,8 @@
 
-const SCHEMA_VERSION = 1;
-const STORAGE_PREFIX = 'test-todo:'
+export const SCHEMA_VERSION = 1;
+export const STORAGE_PREFIX = 'test-todo:'
+export const STORAGE_KEY_MAIN = 'todos'
+export const STORAGE_KEY_DRAFT = 'draft'
 
 export function saveToStorage<T>(key: string, value: T): void {
   if (!import.meta.client) return

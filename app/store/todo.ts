@@ -1,9 +1,7 @@
 import { defineStore } from 'pinia'
-import { ref, computed, watch } from 'vue' 
+import { ref, computed, watch } from 'vue'
 import { loadFromStorage, saveToStorage } from '~/utils/storage'
 import type { ITodo, ITodoItem } from '~/types/todo';
-
-const STORAGE_KEY = 'todos'
 
 interface ITodoStore {
   todos: Ref<ITodo[]>
@@ -11,6 +9,7 @@ interface ITodoStore {
   updateTodo: (todo: ITodo) => void
   deleteTodo: (id: string) => void
   getTodo: (id: string) => ITodo | null
+  updateTodos: (list: ITodo[]) => void
 }
 
 export const useTodoStore = defineStore('todos', (): ITodoStore => {
@@ -18,38 +17,44 @@ export const useTodoStore = defineStore('todos', (): ITodoStore => {
   const todos = ref<ITodo[]>([])
 
   function addTodo(todo: ITodo): void {
-    todos.value.push({...todo, date: new Date().getTime() })
-    saveToStorage(STORAGE_KEY, todos.value)
+    todos.value.push({ ...todo, date: new Date().getTime() })
+    saveToStorage(STORAGE_KEY_MAIN, todos.value)
   }
 
-  function updateTodo(newTodo: ITodo) {
-    const todo = todos.value.find(todo => todo.id === newTodo.id)
-    if (todo) {
-      todo.id = newTodo.id,
-      todo.name = newTodo.name,
-      todo.date = newTodo.date,
-      todo.list = newTodo.list.map(i => (({ index: i.index, text: i.text, checked: i.checked })))
+  function updateTodo(newTodo: ITodo): void {
+    const index = todos.value.findIndex(todo => todo.id === newTodo.id)
+    if (index !== -1) {
+      todos.value[index] = {
+        id: newTodo.id,
+        name: newTodo.name,
+        date: newTodo.date,
+        list: newTodo.list.map(i => (({ index: i.index, text: i.text, checked: i.checked })))
+      }
+
+      saveToStorage(STORAGE_KEY_MAIN, todos.value)
     }
-
-    saveToStorage(STORAGE_KEY, todos.value)
   }
 
-  function deleteTodo(id: string) {
+  function deleteTodo(id: string): void {
     const index = todos.value.findIndex(todo => todo.id === id)
     if (index !== -1) {
       todos.value.splice(index, 1)
     }
 
-    saveToStorage(STORAGE_KEY, todos.value)
+    saveToStorage(STORAGE_KEY_MAIN, todos.value)
   }
 
-  function getTodo(id: string) {
+  function getTodo(id: string): ITodo | null {
     return todos.value.find(todo => todo.id === id) || null
   }
 
+  function updateTodos(list: ITodo[]): void {
+    todos.value = list
+  }
+
   onMounted(() => {
-    todos.value = loadFromStorage<ITodo[]>(STORAGE_KEY, [])
-  }) 
+    updateTodos(loadFromStorage<ITodo[]>(STORAGE_KEY_MAIN, []))
+  })
 
   return {
     todos,
@@ -57,5 +62,6 @@ export const useTodoStore = defineStore('todos', (): ITodoStore => {
     addTodo,
     updateTodo,
     deleteTodo,
+    updateTodos
   }
 })
